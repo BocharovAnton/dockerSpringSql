@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "_group")
@@ -24,6 +25,6 @@ public class GroupEntity {
     private String spec;
 
     @OneToMany(targetEntity = StudentEntity.class, cascade = CascadeType.ALL)
-    private List<StudentEntity> studentsList;
+    private Set<StudentEntity> studentsList;
 
 }

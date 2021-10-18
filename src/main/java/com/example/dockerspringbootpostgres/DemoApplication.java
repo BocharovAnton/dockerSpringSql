@@ -1,13 +1,18 @@
 package com.example.dockerspringbootpostgres;
 
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.List;
 
 import com.example.dockerspringbootpostgres.Entity.StudentEntity;
+import com.example.dockerspringbootpostgres.Entity.TimetableEntity;
 import com.example.dockerspringbootpostgres.Repository.StudentRepository;
 import com.example.dockerspringbootpostgres.Entity.GroupEntity;
 import com.example.dockerspringbootpostgres.Repository.GroupRepository;
+import com.example.dockerspringbootpostgres.Entity.AttendanceEntity;
+import com.example.dockerspringbootpostgres.Repository.AttendanceRepository;
 
-
+import com.example.dockerspringbootpostgres.Repository.TimetableRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -20,9 +25,14 @@ public class DemoApplication {
     private StudentRepository studentRepository;
     @Autowired
     private GroupRepository groupRepository;
+    @Autowired
+    private AttendanceRepository attendanceRepository;
+    @Autowired
+    private TimetableRepository timetableRepository;
 
     @EventListener(ApplicationReadyEvent.class)
     public void runAfterStartup() {
+        Timestamp ts = new Timestamp(System.currentTimeMillis());
         List allGroups = this.groupRepository.findAll();
         System.out.println("Number of Groups: " + allGroups.size());
 
@@ -33,16 +43,6 @@ public class DemoApplication {
         this.groupRepository.save(newGroup);
 
 
-        allGroups = this.groupRepository.findAll();
-        System.out.println("Number of Groups: " + allGroups.size());
-        for(int i = 0; i<allGroups.size();i++){
-            System.out.println("Group info:" + allGroups.get(i));
-        }
-
-
-        List allStudents = this.studentRepository.findAll();
-        System.out.println("Number of Students: " + allStudents.size());
-
         StudentEntity newStudent = new StudentEntity();
         newStudent.setFirstName("John");
         newStudent.setLastName("Doe");
@@ -51,16 +51,21 @@ public class DemoApplication {
         System.out.println(("Saving new Student..."));
         this.studentRepository.save(newStudent);
 
+        TimetableEntity newTimetable = new TimetableEntity();
+        newTimetable.setDate(ts);
+        System.out.println(("Saving new Attendance..."));
+        this.timetableRepository.save(newTimetable);
 
-
-        allStudents = this.studentRepository.findAll();
-        System.out.println("Number of Students: " + allStudents.size());
-        for(int i = 0; i<allStudents.size();i++){
-            System.out.println("Student info:" + allStudents.get(i));
-        }
-
+        AttendanceEntity newAttendance = new AttendanceEntity();
+        newAttendance.setPresence(true);
+        newAttendance.setStudent(newStudent);
+        newAttendance.setTimetable(newTimetable);
+        System.out.println(("Saving new Attendance..."));
+        this.attendanceRepository.save(newAttendance);
 
         System.out.println(studentRepository.findAll());
+        System.out.println(groupRepository.findAll());
+        System.out.println(attendanceRepository.findAll());
 
     }
 }

@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "student")
@@ -32,5 +34,9 @@ public class StudentEntity {
     @OneToOne(targetEntity = GroupEntity.class)
     @JoinColumn(name = "group_id")
     private GroupEntity group;
+
+
+    @OneToMany(targetEntity = AttendanceEntity.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Set<AttendanceEntity> attendanceList;
 
 }

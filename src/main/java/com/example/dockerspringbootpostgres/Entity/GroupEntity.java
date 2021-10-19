@@ -21,8 +21,10 @@ public class GroupEntity {
     @Column(name = "group_code", nullable = false)
     private String groupCode;
 
-    @Column(name = "spec", nullable = false)
-    private String spec;
+    @OneToOne(targetEntity = SpecialityEntity.class)
+    @JoinColumn(name = "speciality_id")
+    private SpecialityEntity speciality;
+
 
     @OneToMany(targetEntity = StudentEntity.class, cascade = CascadeType.ALL)
     private Set<StudentEntity> studentsList;

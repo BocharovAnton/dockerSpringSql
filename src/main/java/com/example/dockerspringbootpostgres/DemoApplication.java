@@ -4,15 +4,9 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.List;
 
-import com.example.dockerspringbootpostgres.Entity.StudentEntity;
-import com.example.dockerspringbootpostgres.Entity.TimetableEntity;
-import com.example.dockerspringbootpostgres.Repository.StudentRepository;
-import com.example.dockerspringbootpostgres.Entity.GroupEntity;
-import com.example.dockerspringbootpostgres.Repository.GroupRepository;
-import com.example.dockerspringbootpostgres.Entity.AttendanceEntity;
-import com.example.dockerspringbootpostgres.Repository.AttendanceRepository;
+import com.example.dockerspringbootpostgres.Entity.*;
+import com.example.dockerspringbootpostgres.Repository.*;
 
-import com.example.dockerspringbootpostgres.Repository.TimetableRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -29,16 +23,41 @@ public class DemoApplication {
     private AttendanceRepository attendanceRepository;
     @Autowired
     private TimetableRepository timetableRepository;
+    @Autowired
+    private LectureRepository lectureRepository;
+    @Autowired
+    private SubjectRepository subjectRepository;
+    @Autowired
+    private CourseRepository couseRepository;
+    @Autowired
+    private SpecialityRepository specialityRepository;
 
     @EventListener(ApplicationReadyEvent.class)
     public void runAfterStartup() {
         Timestamp ts = new Timestamp(System.currentTimeMillis());
-        List allGroups = this.groupRepository.findAll();
-        System.out.println("Number of Groups: " + allGroups.size());
+
+        SpecialityEntity newSpeciality = new SpecialityEntity();
+        newSpeciality.setName("Information Technology");
+        this.specialityRepository.save(newSpeciality);
+
+        CourseEntity newCourse = new CourseEntity();
+        newCourse.setSpeciality(newSpeciality);
+        newCourse.setSize(50);
+        this.couseRepository.save(newCourse);
+
+
+        SubjectEntity newSubject = new SubjectEntity();
+        newSubject.setCourse(newCourse);
+        newSubject.setName("Программирования");
+        this.subjectRepository.save(newSubject);
+
+        LectureEntity newLecture = new LectureEntity();
+        newLecture.setSubject(newSubject);
+        this.lectureRepository.save(newLecture);
 
         GroupEntity newGroup = new GroupEntity();
         newGroup.setGroupCode("BSBO-01-18");
-        newGroup.setSpec("Information Technology");
+        newGroup.setSpeciality(newSpeciality);
         System.out.println(("Saving new Group..."));
         this.groupRepository.save(newGroup);
 
@@ -53,6 +72,7 @@ public class DemoApplication {
 
         TimetableEntity newTimetable = new TimetableEntity();
         newTimetable.setDate(ts);
+        newTimetable.setLecture(newLecture);
         System.out.println(("Saving new Attendance..."));
         this.timetableRepository.save(newTimetable);
 

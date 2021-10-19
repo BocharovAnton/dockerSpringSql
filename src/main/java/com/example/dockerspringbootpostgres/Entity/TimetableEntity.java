@@ -25,6 +25,9 @@ public class TimetableEntity {
     @Column(name = "datetime", nullable = false)
     private Timestamp date;
 
+    @OneToOne(targetEntity = LectureEntity.class)
+    @JoinColumn(name = "lecture_id")
+    private LectureEntity lecture;
 
     @OneToMany(targetEntity = AttendanceEntity.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<AttendanceEntity> attendanceList;

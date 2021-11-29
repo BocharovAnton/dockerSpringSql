@@ -1,8 +1,8 @@
 package com.example.dockerspringbootpostgres.Repository;
 
-import com.example.dockerspringbootpostgres.Entity.SpecialityEntity;
+import com.example.dockerspringbootpostgres.Entity.Speciality;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface SpecialityRepository extends JpaRepository<SpecialityEntity, String> {
-    SpecialityEntity findById(Long id);
+public interface SpecialityRepository extends JpaRepository<Speciality, String> {
+    Speciality findById(int id);
 }

@@ -1,8 +1,12 @@
 package com.example.dockerspringbootpostgres.Repository;
 
-import com.example.dockerspringbootpostgres.Entity.GroupEntity;
+import com.example.dockerspringbootpostgres.Entity.Group;
+import com.example.dockerspringbootpostgres.Entity.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface GroupRepository extends JpaRepository<GroupEntity, String> {
-    GroupEntity findById(Long id);
+import java.util.List;
+
+public interface GroupRepository extends JpaRepository<Group, String> {
+    Group findById(int id);
+
 }

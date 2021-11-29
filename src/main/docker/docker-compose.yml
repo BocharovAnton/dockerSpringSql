@@ -1,26 +1,26 @@
 version: '2'
-
 services:
-  app:
-    image: 'docker-spring-boot-postgres:latest'
-    build:
-      context: .
-    container_name: app
+  elastic:
+    image: elasticsearch:7.14.2
+    container_name: elastic
     ports:
-      - "8080:8080"
-    depends_on:
-      - db
+      - "9200:9200"
+      - "9300:9300"
     environment:
-      - SERVER_PORT=8080
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/compose-postgres
-      - SPRING_DATASOURCE_USERNAME=compose-postgres
-      - SPRING_DATASOURCE_PASSWORD=compose-postgres
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - discovery.type=single-node
+      - cluster.name=docker-cluster
+      - client.transport.sniff=true
 
-  db:
-    image: 'postgres:latest'
-    container_name: db
+  postgresql:
+    image: postgres:latest
+    container_name: postgresql
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql1/data/
     environment:
-      - POSTGRES_USER=compose-postgres
-      - POSTGRES_PASSWORD=compose-postgres
-      - POSTGRES_DB=compose-postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+volumes:
+  db_data:

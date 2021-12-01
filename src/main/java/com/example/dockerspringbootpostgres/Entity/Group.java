@@ -25,10 +25,10 @@ public class Group {
     private Speciality speciality;
 
 
-    @OneToMany(targetEntity = Student.class, cascade = CascadeType.ALL)
+    @OneToMany(targetEntity = Student.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Student> studentsList;
 
-    @OneToMany(targetEntity = Timetable.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(targetEntity = Timetable.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Timetable> timeTableList;
 
 }

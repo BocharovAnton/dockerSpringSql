@@ -32,7 +32,7 @@ public class Timetable {
     @JoinColumn(name = "group_id")
     private Group group;
 
-    @OneToMany(targetEntity = Attendance.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(targetEntity = Attendance.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Attendance> attendanceList;
 
 }

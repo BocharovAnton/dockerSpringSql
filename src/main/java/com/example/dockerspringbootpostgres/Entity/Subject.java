@@ -26,7 +26,7 @@ public class Subject {
     private Course course;
 
 
-    @OneToMany(targetEntity = Lecture.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(targetEntity = Lecture.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Lecture> lectureList;
 
 }

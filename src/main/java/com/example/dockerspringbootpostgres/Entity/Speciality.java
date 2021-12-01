@@ -20,9 +20,9 @@ public class Speciality {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @OneToMany(targetEntity = Course.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(targetEntity = Course.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Course> CourseList;
 
-    @OneToMany(targetEntity = Group.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(targetEntity = Group.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Group> groupList;
 }

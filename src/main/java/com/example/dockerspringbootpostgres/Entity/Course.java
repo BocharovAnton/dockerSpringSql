@@ -26,7 +26,7 @@ public class Course {
     private Speciality speciality;
 
 
-    @OneToMany(targetEntity = Subject.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(targetEntity = Subject.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Subject> subjectList;
 
 }

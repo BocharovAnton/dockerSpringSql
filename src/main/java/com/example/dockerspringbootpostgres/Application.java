@@ -51,7 +51,6 @@ public class Application {
         int[] endDate = new int[5];
         String str;
         entryData();
-        System.out.println("-------------------");
 //        Scanner in = new Scanner(System.in);
 //        System.out.print("startDate: ");
 //        for (int i = 0; i < 5; i++) {
@@ -93,7 +92,7 @@ public class Application {
         return temp;
     }
     HashMap<Integer, Integer> studentsAttendance= new HashMap<>();
-    HashMap<Integer, Integer> studentsLectionCount = new HashMap<>();
+    HashMap<Integer, Integer> studentsLectureCount = new HashMap<>();
     public void lab1(String textEntry, int[] startDate, int[]endDate){
         List<LectureFullText> lectureFullTextList = service.elasticSearch(textEntry);
         for(LectureFullText lft:lectureFullTextList) {
@@ -109,7 +108,7 @@ public class Application {
                         if (al.getPresence()) {//проверяем посещал ли он назначенную ему пару
                             studentsAttendance.put(al.getStudent().getId(), studentsAttendance.get(al.getStudent().getId()) + 1);
                         }
-                        studentsLectionCount.put(al.getStudent().getId(), studentsLectionCount.get(al.getStudent().getId()) + 1);
+                        studentsLectureCount.put(al.getStudent().getId(), studentsLectureCount.get(al.getStudent().getId()) + 1);
                     }
                     else{
                         if (al.getPresence()) {
@@ -117,21 +116,22 @@ public class Application {
                         } else {
                             studentsAttendance.put(al.getStudent().getId(), 0);
                         }
-                        studentsLectionCount.put(al.getStudent().getId(), 1);
+                        studentsLectureCount.put(al.getStudent().getId(), 1);
                     }
                 }
             }
         }
         for(Integer i:studentsAttendance.keySet()){
-            studentsAttendance.put(i, studentsAttendance.get(i)*100/ studentsLectionCount.get(i));
+            studentsAttendance.put(i, studentsAttendance.get(i)*100/ studentsLectureCount.get(i));
             //пересчитываем процент посещений
         }
         studentsAttendance  = sortByValue(studentsAttendance);
 
 
-
+        System.out.println("-----------");
         for(Integer i:studentsAttendance.keySet()){
             System.out.printf(studentRepository.findById(i).getFirstName()+" "+ studentRepository.findById(i).getLastName());
+            System.out.printf("\nГруппа - "+studentRepository.findById(i).getGroup().getGroupCode());
             System.out.println("\n"+studentsAttendance.get(i) +"%");
             System.out.println("---------");
         }
@@ -160,7 +160,6 @@ public class Application {
             students.addAll(tmpStudents);
             Group group = data.getGroup(newSpeciality, tmpStudents);
             groups.add(group);
-            group.setStudentsList(tmpStudents);
             this.groupRepository.save(group);
             tmpStudents.forEach(student-> student.setGroup(group));
             tmpStudents.forEach(student-> student.setNumber(1));//ДОДЕЛАТЬ НОМЕРА СТУДЕНТАМ
@@ -201,6 +200,7 @@ public class Application {
             newTimeTable.setGroup(tmpGroup);
             this.timetableRepository.save(newTimeTable);
 
+
             Set<Attendance> attendanceSet = new HashSet<>();
             Set<Student> studentsOfNeededGroup = tmpGroup.getStudentsList();
             studentsOfNeededGroup.forEach(student -> {
@@ -212,6 +212,6 @@ public class Application {
                 }
             );
         }
+        System.out.println("---");
     }
-
 }

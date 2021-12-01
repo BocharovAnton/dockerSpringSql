@@ -11,7 +11,7 @@ import java.util.Set;
 @Setter
 @ToString
 public class Lecture {
-    @GeneratedValue(strategy=GenerationType.SEQUENCE)
+    @GeneratedValue(strategy =  GenerationType.IDENTITY)
     @Id
     private int id;
 

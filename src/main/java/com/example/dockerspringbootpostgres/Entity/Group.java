@@ -13,7 +13,7 @@ import java.util.Set;
 public class Group {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy =  GenerationType.IDENTITY)
     private int id;
 
 
@@ -27,5 +27,8 @@ public class Group {
 
     @OneToMany(targetEntity = Student.class, cascade = CascadeType.ALL)
     private Set<Student> studentsList;
+
+    @OneToMany(targetEntity = Timetable.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Set<Timetable> timeTableList;
 
 }

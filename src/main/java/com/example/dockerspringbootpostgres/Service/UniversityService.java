@@ -49,11 +49,6 @@ public class UniversityService {
         return groupRepository.findAll();
     }
 
-
-    public UniversityService(ElasticsearchRestTemplate elasticsearchRestTemplate) {
-        this.elasticsearchRestTemplate = elasticsearchRestTemplate;
-    }
-
     @Transactional(readOnly = true)
     public List<LectureFullText> elasticSearch(String textEntry){
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()

@@ -1,6 +1,5 @@
 package com.example.dockerspringbootpostgres;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -8,6 +7,7 @@ import com.example.dockerspringbootpostgres.ElasticRepository.LectureFullTextRep
 import com.example.dockerspringbootpostgres.Entity.*;
 import com.example.dockerspringbootpostgres.Repository.*;
 
+import com.example.dockerspringbootpostgres.Service.DataGenerator;
 import com.example.dockerspringbootpostgres.Service.UniversityService;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
-import java.util.Map.Entry;
 
 
 @SpringBootApplication
@@ -68,7 +67,7 @@ public class Application {
         startDate = new int[]{2020, 1, 1, 0, 0};//УБРАТЬ ПОСЛЕ ТЕСТОВ!!!!!!!!!!!!!!!!!!!!!!!!!!!
         endDate = new int[]{2022, 1, 1, 0, 0};//УБРАТЬ ПОСЛЕ ТЕСТОВ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //УБРАТЬ ПОСЛЕ ТЕСТОВ!!!!!!!
-        str = "несет в себе";
+        str = "Shared access signature";
         lab1(str, startDate, endDate);
     }
     public static HashMap<Integer, Integer> sortByValue(HashMap<Integer, Integer> hm)
@@ -94,9 +93,9 @@ public class Application {
         return temp;
     }
     HashMap<Integer, Integer> studentsAttendance= new HashMap<>();
-    HashMap<Integer, Integer> studentsAttendanceWithPercentage= new HashMap<>();
+    HashMap<Integer, Integer> studentsLectionCount = new HashMap<>();
     public void lab1(String textEntry, int[] startDate, int[]endDate){
-        List<LectureFullText> lectureFullTextList = service.elasticSearch("несет в себе");
+        List<LectureFullText> lectureFullTextList = service.elasticSearch(textEntry);
         for(LectureFullText lft:lectureFullTextList) {
             Lecture lecture = lectureRepository.findById(lft.getId());
             List <Timetable> timetableList = timetableRepository.findAllByLectureAndDateBetween(
@@ -110,7 +109,7 @@ public class Application {
                         if (al.getPresence()) {//проверяем посещал ли он назначенную ему пару
                             studentsAttendance.put(al.getStudent().getId(), studentsAttendance.get(al.getStudent().getId()) + 1);
                         }
-                        studentsAttendanceWithPercentage.put(al.getStudent().getId(), studentsAttendanceWithPercentage.get(al.getStudent().getId()) + 1);
+                        studentsLectionCount.put(al.getStudent().getId(), studentsLectionCount.get(al.getStudent().getId()) + 1);
                     }
                     else{
                         if (al.getPresence()) {
@@ -118,147 +117,101 @@ public class Application {
                         } else {
                             studentsAttendance.put(al.getStudent().getId(), 0);
                         }
-                        studentsAttendanceWithPercentage.put(al.getStudent().getId(), 1);
+                        studentsLectionCount.put(al.getStudent().getId(), 1);
                     }
                 }
             }
         }
         for(Integer i:studentsAttendance.keySet()){
-            studentsAttendance.put(i, studentsAttendance.get(i)*100/studentsAttendanceWithPercentage.get(i));
+            studentsAttendance.put(i, studentsAttendance.get(i)*100/ studentsLectionCount.get(i));
+            //пересчитываем процент посещений
         }
         studentsAttendance  = sortByValue(studentsAttendance);
 
 
 
         for(Integer i:studentsAttendance.keySet()){
-            System.out.printf(studentRepository.findById(i).toString());
-            System.out.println(studentsAttendance.get(i));
+            System.out.printf(studentRepository.findById(i).getFirstName()+" "+ studentRepository.findById(i).getLastName());
+            System.out.println("\n"+studentsAttendance.get(i) +"%");
             System.out.println("---------");
         }
     }
-    public void entryData(){
-        Timestamp ts = new Timestamp(System.currentTimeMillis());
+    public void entryData() {
+        Random rand = new Random();
 
+        DataGenerator data =  new DataGenerator();
+        ArrayList<Student> students = new ArrayList<>();
+        ArrayList<Group> groups = new ArrayList<>();
+        ArrayList<Lecture> lectures = new ArrayList<>();
+
+
+        //сохраняем специальность
         Speciality newSpeciality = new Speciality();
         newSpeciality.setName("Information Technology");
         this.specialityRepository.save(newSpeciality);
 
+
+        //сохраняем студентов и группы
+        for (int i = 0; i < 3; i++) {
+            Set<Student> tmpStudents = new HashSet<>();
+            for (int j = 0; j < 30; j++) {
+                tmpStudents.add(data.getStudent());
+            }
+            students.addAll(tmpStudents);
+            Group group = data.getGroup(newSpeciality, tmpStudents);
+            groups.add(group);
+            group.setStudentsList(tmpStudents);
+            this.groupRepository.save(group);
+            tmpStudents.forEach(student-> student.setGroup(group));
+            tmpStudents.forEach(student-> student.setNumber(1));//ДОДЕЛАТЬ НОМЕРА СТУДЕНТАМ
+            tmpStudents.forEach(student-> studentRepository.save(student));
+        }
+        //добавляем курс
         Course newCourse = new Course();
         newCourse.setSpeciality(newSpeciality);
         newCourse.setSize(50);
         this.courseRepository.save(newCourse);
 
 
+        //добавляем предмет
         Subject newSubject = new Subject();
         newSubject.setCourse(newCourse);
-        newSubject.setName("Программирования");
+        newSubject.setName("Принципы построения, проектирования и эксплуатации информационных систем");
         this.subjectRepository.save(newSubject);
 
-        Lecture newLecture = new Lecture();
-        newLecture.setSubject(newSubject);
-        this.lectureRepository.save(newLecture);
+        //добавляем лекции и их полный текст в эластик
+        for(int i = 0; i < data.getLectures().size(); i++){
+            Lecture newLecture = new Lecture();
+            newLecture.setSubject(newSubject);
+            lectures.add(newLecture);
+            this.lectureRepository.save(newLecture);
 
-        Lecture newLecture1 = new Lecture();
-        newLecture1.setSubject(newSubject);
-        this.lectureRepository.save(newLecture1);
+            LectureFullText newFullTextLecture = new LectureFullText();
+            newFullTextLecture.id = newLecture.getId();
+            newFullTextLecture.text = data.getLectures().get(i);
+            this.lectureFullTextRepository.save(newFullTextLecture);
 
+        }
+        //добавляем расписание (привязываем лекции ко времени и указываем группу)
+        for(int i = 0; i < 100; i++){
+            Timetable newTimeTable = new Timetable();
+            newTimeTable.setDate(LocalDateTime.now());
+            newTimeTable.setLecture(lectures.get(rand.nextInt(lectures.size())));
+            Group tmpGroup = groups.get(rand.nextInt(groups.size()));
+            newTimeTable.setGroup(tmpGroup);
+            this.timetableRepository.save(newTimeTable);
 
-        LectureFullText newFullTextLecture = new LectureFullText();
-        newFullTextLecture.id = newLecture.getId();
-        newFullTextLecture.text = "Полный текст лекции несет в себе много полезной информации";
-        this.lectureFullTextRepository.save(newFullTextLecture);
-
-        LectureFullText newFullTextLecture1 = new LectureFullText();
-        newFullTextLecture1.id = newLecture1.getId();
-        newFullTextLecture1.text = "Полный текст лекции несет в себе много полезной информации";
-        this.lectureFullTextRepository.save(newFullTextLecture1);
-
-
-
-
-        Group newGroup = new Group();
-        newGroup.setGroupCode("BSBO-01-18");
-        newGroup.setSpeciality(newSpeciality);
-        System.out.println(("Saving new Group..."));
-        this.groupRepository.save(newGroup);
-
-
-        Student newStudent = new Student();
-        newStudent.setFirstName("John");
-        newStudent.setLastName("Doe");
-        newStudent.setNumber(12512);
-        newStudent.setGroup(newGroup);
-        System.out.println(("Saving new Student..."));
-        this.studentRepository.save(newStudent);
-
-        Student newStudent1 = new Student();
-        newStudent1.setFirstName("Anton");
-        newStudent1.setLastName("Bocharov");
-        newStudent1.setNumber(12513);
-        newStudent1.setGroup(newGroup);
-        System.out.println(("Saving new Student..."));
-        this.studentRepository.save(newStudent1);
-
-        Student newStudent2 = new Student();
-        newStudent2.setFirstName("Dmitry");
-        newStudent2.setLastName("Teryaev");
-        newStudent2.setNumber(12514);
-        newStudent2.setGroup(newGroup);
-        System.out.println(("Saving new Student..."));
-        this.studentRepository.save(newStudent2);
-
-
-        Timetable newTimetable = new Timetable();
-        newTimetable.setDate(LocalDateTime.now());
-        newTimetable.setLecture(newLecture1);
-        System.out.println(("Saving new Attendance..."));
-        this.timetableRepository.save(newTimetable);
-
-        Timetable newTimetable1 = new Timetable();
-        newTimetable1.setDate(LocalDateTime.now());
-        newTimetable1.setLecture(newLecture1);
-        System.out.println(("Saving new Attendance..."));
-        this.timetableRepository.save(newTimetable1);
-
-        Timetable newTimetable2 = new Timetable();
-        newTimetable2.setDate(LocalDateTime.now());
-        newTimetable2.setLecture(newLecture);
-        System.out.println(("Saving new Attendance..."));
-        this.timetableRepository.save(newTimetable2);
-
-        Attendance newAttendance = new Attendance();
-        newAttendance.setPresence(true);
-        newAttendance.setStudent(newStudent);
-        newAttendance.setTimetable(newTimetable);
-        System.out.println(("Saving new Attendance..."));
-        this.attendanceRepository.save(newAttendance);
-
-        Attendance newAttendance1 = new Attendance();
-        newAttendance1.setPresence(false);
-        newAttendance1.setStudent(newStudent1);
-        newAttendance1.setTimetable(newTimetable);
-        System.out.println(("Saving new Attendance..."));
-        this.attendanceRepository.save(newAttendance1);
-
-        Attendance newAttendance2 = new Attendance();
-        newAttendance2.setPresence(true);
-        newAttendance2.setStudent(newStudent2);
-        newAttendance2.setTimetable(newTimetable1);
-        System.out.println(("Saving new Attendance..."));
-        this.attendanceRepository.save(newAttendance2);
-
-        Attendance newAttendance3 = new Attendance();
-        newAttendance3.setPresence(false);
-        newAttendance3.setStudent(newStudent);
-        newAttendance3.setTimetable(newTimetable2);
-        System.out.println(("Saving new Attendance..."));
-        this.attendanceRepository.save(newAttendance3);
-
-        System.out.println(studentRepository.findAll());
-        System.out.println(groupRepository.findAll());
-        System.out.println(attendanceRepository.findAll());
-        System.out.println(lectureFullTextRepository.findAll());
-
+            Set<Attendance> attendanceSet = new HashSet<>();
+            Set<Student> studentsOfNeededGroup = tmpGroup.getStudentsList();
+            studentsOfNeededGroup.forEach(student -> {
+                Attendance newAttendance = new Attendance();
+                newAttendance.setPresence(rand.nextBoolean());
+                newAttendance.setStudent(student);
+                newAttendance.setTimetable(newTimeTable);
+                this.attendanceRepository.save(newAttendance);
+                }
+            );
+        }
     }
 
 }

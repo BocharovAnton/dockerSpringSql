@@ -18,7 +18,7 @@ import java.util.Set;
 public class Timetable {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy =  GenerationType.IDENTITY)
     private int id;
 
     @Column(name = "datetime", nullable = false)
@@ -27,6 +27,10 @@ public class Timetable {
     @OneToOne(targetEntity = Lecture.class)
     @JoinColumn(name = "lecture_id")
     private Lecture lecture;
+
+    @OneToOne(targetEntity = Group.class)
+    @JoinColumn(name = "group_id")
+    private Group group;
 
     @OneToMany(targetEntity = Attendance.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Attendance> attendanceList;

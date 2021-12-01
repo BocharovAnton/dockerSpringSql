@@ -14,7 +14,7 @@ import javax.persistence.*;
 public class Attendance {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy =  GenerationType.IDENTITY)
     private int id;
 
     @Column(name = "presence", nullable = false)

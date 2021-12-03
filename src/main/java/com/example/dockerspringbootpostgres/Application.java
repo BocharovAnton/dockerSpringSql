@@ -5,7 +5,7 @@ import java.util.*;
 
 import com.example.dockerspringbootpostgres.ElasticRepository.LectureFullTextRepository;
 import com.example.dockerspringbootpostgres.Entity.*;
-import com.example.dockerspringbootpostgres.Repository.*;
+import com.example.dockerspringbootpostgres.repository.*;
 
 import com.example.dockerspringbootpostgres.Service.DataGenerator;
 import com.example.dockerspringbootpostgres.Service.UniversityService;
@@ -43,9 +43,14 @@ public class Application {
     @Autowired
     private UniversityService service;
     @Autowired
+    private RedisRepository redisRepository;
+    @Autowired
+    private GroupMongoRepository groupMongoRepository;
+    @Autowired
+    private StudentMongoRepository studentMongoRepository;
+    @Autowired
     private RestHighLevelClient client;
     @EventListener(ApplicationReadyEvent.class)
-
     public void runAfterStartup(){
         int[] startDate = new int[5];
         int[] endDate = new int[5];
@@ -129,17 +134,27 @@ public class Application {
 
 
         System.out.println("-----------");
+        System.out.println("Поиск по термину: " + textEntry);
+        System.out.println("По дате, с:  " + startDate[0]+"."+startDate[1]+'.'+startDate[2]);
+        System.out.println("До:  " + endDate[0]+"."+ endDate[1]+'.'+endDate[2]);
+        System.out.println("-----------");
+        int count = 0;
         for(Integer i:studentsAttendance.keySet()){
-            System.out.printf(studentRepository.findById(i).getFirstName()+" "+ studentRepository.findById(i).getLastName());
-            System.out.printf("\nГруппа - "+studentRepository.findById(i).getGroup().getGroupCode());
-            System.out.println("\n"+studentsAttendance.get(i) +"%");
-            System.out.println("---------");
+            if(count < 10) {
+                System.out.printf(redisRepository.findStudentById(String.valueOf(i)).getFullName());
+                System.out.printf("\nНомер зачетки - " + i);
+                //System.out.printf("\nГруппа - " + studentRepository.findById(i).getGroup().getGroupCode());
+                //System.out.printf("\nНомер зачетки - " + studentRepository.findById(i).getId());
+                System.out.println("\n" + studentsAttendance.get(i) + "%");
+                System.out.println("---------");
+                count ++;
+            }
         }
     }
     public void entryData() {
         Random rand = new Random();
 
-        DataGenerator data =  new DataGenerator();
+        DataGenerator dataGenerator =  new DataGenerator();
         ArrayList<Student> students = new ArrayList<>();
         ArrayList<Group> groups = new ArrayList<>();
         ArrayList<Lecture> lectures = new ArrayList<>();
@@ -155,15 +170,31 @@ public class Application {
         for (int i = 0; i < 3; i++) {
             Set<Student> tmpStudents = new HashSet<>();
             for (int j = 0; j < 30; j++) {
-                tmpStudents.add(data.getStudent());
+                tmpStudents.add(dataGenerator.getStudent());
             }
             students.addAll(tmpStudents);
-            Group group = data.getGroup(newSpeciality, tmpStudents);
+            Group group = dataGenerator.getGroup(newSpeciality, tmpStudents);
             groups.add(group);
+            GroupMongo groupMongo = new GroupMongo();
+            StudentMongo studentMongo = new StudentMongo();
             this.groupRepository.save(group);
-            tmpStudents.forEach(student-> student.setGroup(group));
-            tmpStudents.forEach(student-> student.setNumber(1));//ДОДЕЛАТЬ НОМЕРА СТУДЕНТАМ
-            tmpStudents.forEach(student-> studentRepository.save(student));
+            groupMongo.setCode(group.getGroupCode());
+            groupMongo.setId(group.getId());
+            Set<StudentMongo> studentMongoSet= new HashSet<>();
+            StudentRedis studentRedis = new StudentRedis();
+            tmpStudents.forEach(student-> {
+                student.setId(dataGenerator.GetNextStudentCode());
+                student.setGroup(group);
+                studentRedis.setId(student.getId());
+                studentRedis.setFullName(dataGenerator.getRandomName());
+                redisRepository.save(studentRedis);//сохраняем в редис
+                studentRepository.save(student);//сохраняем в реляционку
+                studentMongoSet.add(new StudentMongo(studentRedis.getId(), studentRedis.getFullName()));
+            });
+            groupMongo.setStudentList(studentMongoSet);
+            studentMongoSet.forEach(studentMongo1 -> studentMongoRepository.save(studentMongo1));
+            groupMongoRepository.save(groupMongo);
+            System.out.println(groupMongo.toString());
         }
         //добавляем курс
         Course newCourse = new Course();
@@ -179,7 +210,7 @@ public class Application {
         this.subjectRepository.save(newSubject);
 
         //добавляем лекции и их полный текст в эластик
-        for(int i = 0; i < data.getLectures().size(); i++){
+        for(int i = 0; i < dataGenerator.getLectures().size(); i++){
             Lecture newLecture = new Lecture();
             newLecture.setSubject(newSubject);
             lectures.add(newLecture);
@@ -187,7 +218,7 @@ public class Application {
 
             LectureFullText newFullTextLecture = new LectureFullText();
             newFullTextLecture.id = newLecture.getId();
-            newFullTextLecture.text = data.getLectures().get(i);
+            newFullTextLecture.text = dataGenerator.getLectures().get(i);
             this.lectureFullTextRepository.save(newFullTextLecture);
 
         }
@@ -212,6 +243,5 @@ public class Application {
                 }
             );
         }
-        System.out.println("---");
     }
 }

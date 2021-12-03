@@ -2,15 +2,17 @@ package com.example.dockerspringbootpostgres.Entity;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Set;
 
 @Entity
 @Table(name = "_group")
 @Getter
 @Setter
-public class Group {
+public class Group implements Serializable {
 
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)

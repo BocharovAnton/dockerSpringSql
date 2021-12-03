@@ -1,4 +1,4 @@
-package com.example.dockerspringbootpostgres.Repository;
+package com.example.dockerspringbootpostgres.repository;
 
 import com.example.dockerspringbootpostgres.Entity.Subject;
 import org.springframework.data.jpa.repository.JpaRepository;

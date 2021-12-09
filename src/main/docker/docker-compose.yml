@@ -10,7 +10,6 @@ services:
       - discovery.type=single-node
       - cluster.name=docker-cluster
       - client.transport.sniff=true
-
   postgresql:
     image: postgres:latest
     container_name: postgresql
@@ -33,5 +32,11 @@ services:
     container_name: mongo
     ports:
       - "27017:27017"
+  neo4j:
+    image: neo4j:latest
+    container_name: neo4j
+    ports:
+      - 7687:7687
+      - 7474:7474
 volumes:
   db_data:

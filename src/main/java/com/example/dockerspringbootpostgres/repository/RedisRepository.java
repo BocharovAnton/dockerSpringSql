@@ -1,6 +1,5 @@
 package com.example.dockerspringbootpostgres.repository;
 
-import com.example.dockerspringbootpostgres.Entity.Student;
 import com.example.dockerspringbootpostgres.Entity.StudentRedis;
 import org.springframework.stereotype.Repository;
 

@@ -3,9 +3,9 @@ package com.example.dockerspringbootpostgres.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import com.example.dockerspringbootpostgres.Entity.Group;
-import com.example.dockerspringbootpostgres.Entity.Speciality;
-import com.example.dockerspringbootpostgres.Entity.Student;
+import com.example.dockerspringbootpostgres.Entity.Postgre.Group;
+import com.example.dockerspringbootpostgres.Entity.Postgre.Speciality;
+import com.example.dockerspringbootpostgres.Entity.Postgre.Student;
 import lombok.Getter;
 import lombok.Setter;
 

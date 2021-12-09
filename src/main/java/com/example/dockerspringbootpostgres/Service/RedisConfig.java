@@ -1,6 +1,5 @@
 package com.example.dockerspringbootpostgres.Service;
 
-import com.example.dockerspringbootpostgres.Entity.Student;
 import com.example.dockerspringbootpostgres.Entity.StudentRedis;
 import com.example.dockerspringbootpostgres.repository.RedisRepository;
 import com.example.dockerspringbootpostgres.repository.RedisRepositoryImpl;

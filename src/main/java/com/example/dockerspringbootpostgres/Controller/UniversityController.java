@@ -1,6 +1,6 @@
 package com.example.dockerspringbootpostgres.Controller;
 
-import com.example.dockerspringbootpostgres.Entity.Group;
+import com.example.dockerspringbootpostgres.Entity.Postgre.Group;
 import com.example.dockerspringbootpostgres.Service.UniversityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

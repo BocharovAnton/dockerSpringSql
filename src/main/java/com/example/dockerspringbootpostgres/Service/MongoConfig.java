@@ -6,7 +6,6 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 
 public class MongoConfig {
     @Bean

@@ -1,8 +1,14 @@
 package com.example.dockerspringbootpostgres.Service;
 
 import com.example.dockerspringbootpostgres.Entity.*;
+import com.example.dockerspringbootpostgres.Entity.Elastic.LectureFullText;
+import com.example.dockerspringbootpostgres.Entity.Postgre.Group;
 import com.example.dockerspringbootpostgres.repository.*;
-import com.example.dockerspringbootpostgres.ElasticRepository.LectureFullTextRepository;
+import com.example.dockerspringbootpostgres.repository.Elastic.LectureFullTextRepository;
+import com.example.dockerspringbootpostgres.repository.Postgre.AttendanceRepository;
+import com.example.dockerspringbootpostgres.repository.Postgre.GroupRepository;
+import com.example.dockerspringbootpostgres.repository.Postgre.LectureRepository;
+import com.example.dockerspringbootpostgres.repository.Postgre.TimetableRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;

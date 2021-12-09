@@ -23,12 +23,10 @@ import com.example.dockerspringbootpostgres.repository.Neo.AttendanceNeoReposito
 import com.example.dockerspringbootpostgres.repository.Neo.LectureNeoRepository;
 import com.example.dockerspringbootpostgres.repository.Neo.TimetableNeoRepository;
 import com.example.dockerspringbootpostgres.repository.Postgre.*;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 
 
 @SpringBootApplication
@@ -53,15 +51,9 @@ public class Application {
     @Autowired
     private SpecialityRepository specialityRepository;
     @Autowired
-    private ElasticsearchRestTemplate elasticsearchTemplate;
-    @Autowired
     private UniversityService service;
     @Autowired
     private RedisRepository redisRepository;
-    @Autowired
-    private GroupMongoRepository groupMongoRepository;
-    @Autowired
-    private StudentMongoRepository studentMongoRepository;
     @Autowired
     private SpecialityMongoRepository specialityMongoRepository;
     @Autowired
@@ -76,8 +68,6 @@ public class Application {
     private AttendanceNeoRepository attendanceNeoRepository;
     @Autowired
     private TimetableNeoRepository timetableNeoRepository;
-    @Autowired
-    private RestHighLevelClient client;
     @EventListener(ApplicationReadyEvent.class)
     public void runAfterStartup(){
         int[] startDate = new int[5];
@@ -104,19 +94,13 @@ public class Application {
     {
         // Create a list from elements of HashMap
         List<Map.Entry<Integer, Integer> > list =
-                new LinkedList<Map.Entry<Integer, Integer> >(hm.entrySet());
+                new LinkedList<>(hm.entrySet());
 
         // Sort the list
-        Collections.sort(list, new Comparator<Map.Entry<Integer, Integer> >() {
-            public int compare(Map.Entry<Integer, Integer> o1,
-                               Map.Entry<Integer, Integer> o2)
-            {
-                return (o1.getValue()).compareTo(o2.getValue());
-            }
-        });
+        list.sort(Map.Entry.comparingByValue());
 
         // put data from sorted list to hashmap
-        HashMap<Integer, Integer> temp = new LinkedHashMap<Integer, Integer>();
+        HashMap<Integer, Integer> temp = new LinkedHashMap<>();
         for (Map.Entry<Integer, Integer> aa : list) {
             temp.put(aa.getKey(), aa.getValue());
         }
@@ -124,6 +108,7 @@ public class Application {
     }
     HashMap<Integer, Integer> studentsAttendance= new HashMap<>();
     HashMap<Integer, Integer> studentsLectureCount = new HashMap<>();
+
     public void lab1(String textEntry, int[] startDate, int[]endDate){
         List<LectureFullText> lectureFullTextList = service.elasticSearch(textEntry);
         for(LectureFullText lft:lectureFullTextList) {
@@ -152,10 +137,8 @@ public class Application {
                 }
             }
         }
-        for(Integer i:studentsAttendance.keySet()){
-            studentsAttendance.put(i, studentsAttendance.get(i)*100/ studentsLectureCount.get(i));
-            //пересчитываем процент посещений
-        }
+        //пересчитываем процент посещений
+        studentsAttendance.replaceAll((i, v) -> v * 100 / studentsLectureCount.get(i));
         studentsAttendance  = sortByValue(studentsAttendance);
 
 
@@ -167,10 +150,8 @@ public class Application {
         int count = 0;
         for(Integer i:studentsAttendance.keySet()){
             if(count < 10) {
-                System.out.printf(redisRepository.findStudentById(String.valueOf(i)).getFullName());
-                System.out.printf("\nНомер зачетки - " + i);
-                //System.out.printf("\nГруппа - " + studentRepository.findById(i).getGroup().getGroupCode());
-                //System.out.printf("\nНомер зачетки - " + studentRepository.findById(i).getId());
+                System.out.print(redisRepository.findStudentById(String.valueOf(i)).getFullName());
+                System.out.print("\nНомер зачетки - " + i);
                 System.out.println("\n"+"Процент посещения - "+ studentsAttendance.get(i) + "%");
                 System.out.println("---------");
                 count ++;
@@ -181,7 +162,6 @@ public class Application {
         Random rand = new Random();
 
         DataGenerator dataGenerator =  new DataGenerator();
-        ArrayList<Student> students = new ArrayList<>();
         ArrayList<Group> groups = new ArrayList<>();
         ArrayList<Lecture> lectures = new ArrayList<>();
 
@@ -192,11 +172,11 @@ public class Application {
             add("Информационные технологии");
             add("Программная инженерия");
         }};
-        for(int i = 0; i < specialities.size(); i ++ ){
+        for (String speciality : specialities) {
             //сохраняем специальность
             Speciality newSpeciality = new Speciality();
-            newSpeciality.setName(specialities.get(i));
-            SpecialityMongo newSpecialityMongo  = new SpecialityMongo();
+            newSpeciality.setName(speciality);
+            SpecialityMongo newSpecialityMongo = new SpecialityMongo();
             this.specialityRepository.save(newSpeciality);
             specialityList.add(newSpeciality);
 
@@ -206,13 +186,13 @@ public class Application {
                 add(4);
             }};
             Set<CourseMongo> courseMongoList = new HashSet<>();
-            for(int j = 0; j < courses.size(); j++ ) {
+            for (Integer course : courses) {
                 //добавляем курс
                 Course newCourse = new Course();
                 CourseMongo newCourseMongo = new CourseMongo();
 
                 newCourse.setSpeciality(newSpeciality);
-                newCourse.setSize(courses.get(j));
+                newCourse.setSize(course);
                 this.courseRepository.save(newCourse);
                 newCourseMongo.setId(newCourse.getId());
                 newCourseMongo.setSize(newCourse.getSize());
@@ -224,12 +204,12 @@ public class Application {
                 }};
 
                 Set<SubjectMongo> subjectMongoList = new HashSet<>();
-                for (int k = 0; k < subjects.size(); k++) {
+                for (String subject : subjects) {
                     //добавляем предмет
                     Subject newSubject = new Subject();
                     SubjectMongo newSubjectMongo = new SubjectMongo();
                     newSubject.setCourse(newCourse);
-                    newSubject.setName(subjects.get(k));
+                    newSubject.setName(subject);
                     this.subjectRepository.save(newSubject);
                     newSubjectMongo.setId(newSubject.getId());
                     newSubjectMongo.setName(newSubject.getName());
@@ -238,13 +218,12 @@ public class Application {
 
                     //добавляем лекции и их полный текст в эластик
                     Set<LectureMongo> lectureMongoList = new HashSet<>();
-                    for(int l = 0; l < dataGenerator.getLectures().size(); l++) {
+                    for (int l = 0; l < dataGenerator.getLectures().size(); l++) {
                         Lecture newLecture = new Lecture();
                         newLecture.setSubject(newSubject);
                         lectures.add(newLecture);
                         this.lectureRepository.save(newLecture);
 
-                        LectureMongo newLectureMongo = new LectureMongo();
                         lectureMongoList.add(new LectureMongo(newLecture.getId(), "TEMP_NAME" + newLecture.getId()));
 
                         LectureFullText newFullTextLecture = new LectureFullText();
@@ -252,7 +231,7 @@ public class Application {
                         newFullTextLecture.text = dataGenerator.getLectures().get(l);
                         this.lectureFullTextRepository.save(newFullTextLecture);
                     }
-                    lectureMongoList.forEach(lectureMongo -> lectureMongoRepository.save(lectureMongo));
+                    lectureMongoRepository.saveAll(lectureMongoList);
                     newSubjectMongo.setLectureList(lectureMongoList);
                     subjectMongoRepository.save(newSubjectMongo);
                 }
@@ -270,16 +249,9 @@ public class Application {
             for (int j = 0; j < 30; j++) {
                 tmpStudents.add(dataGenerator.getStudent());
             }
-            students.addAll(tmpStudents);
             Group group = dataGenerator.getGroup(specialityList.get(rand.nextInt(specialityList.size())), tmpStudents);
             groups.add(group);
             this.groupRepository.save(group);
-            //GroupMongo groupMongo = new GroupMongo();
-            //StudentMongo studentMongo = new StudentMongo();
-
-            //groupMongo.setCode(group.getGroupCode());
-            //groupMongo.setId(group.getId());
-            // Set<StudentMongo> studentMongoSet= new HashSet<>();
             StudentRedis studentRedis = new StudentRedis();
             tmpStudents.forEach(student-> {
                 student.setId(dataGenerator.GetNextStudentCode());
@@ -288,12 +260,7 @@ public class Application {
                 studentRedis.setFullName(dataGenerator.getRandomName());
                 redisRepository.save(studentRedis);//сохраняем в редис
                 studentRepository.save(student);//сохраняем в реляционку
-                //studentMongoSet.add(new StudentMongo(studentRedis.getId(), studentRedis.getFullName()));
             });
-            //groupMongo.setStudentList(studentMongoSet);
-            //studentMongoSet.forEach(studentMongo1 -> studentMongoRepository.save(studentMongo1));
-            //groupMongoRepository.save(groupMongo);
-            //System.out.println(groupMongo.toString());
         }
 
         for(int j = 0; j < lectures.size(); j++){

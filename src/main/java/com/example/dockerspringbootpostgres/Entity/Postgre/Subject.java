@@ -1,7 +1,6 @@
 package com.example.dockerspringbootpostgres.Entity.Postgre;
 
-import com.example.dockerspringbootpostgres.Entity.Postgre.Course;
-import com.example.dockerspringbootpostgres.Entity.Postgre.Lecture;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

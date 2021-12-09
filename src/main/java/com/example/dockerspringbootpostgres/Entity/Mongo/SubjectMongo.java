@@ -1,6 +1,5 @@
 package com.example.dockerspringbootpostgres.Entity.Mongo;
 
-import com.example.dockerspringbootpostgres.Entity.Mongo.LectureMongo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

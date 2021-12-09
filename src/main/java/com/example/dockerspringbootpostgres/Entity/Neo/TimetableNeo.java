@@ -1,6 +1,5 @@
 package com.example.dockerspringbootpostgres.Entity.Neo;
 
-import com.example.dockerspringbootpostgres.Entity.Neo.AttendanceNeo;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.neo4j.core.schema.Id;

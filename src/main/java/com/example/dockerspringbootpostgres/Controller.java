@@ -393,8 +393,8 @@ public class Controller {
         courseMongo = courseMongoRepository.findAll().get(0);
         courseMongo.getSubjectList().forEach(subjectMongo -> {
             subjectMongo.getLectureList().forEach(lectureMongo -> {
-                final Integer[] studentsOnLectureCount = {0};
                 timetableRepository.findAllByLectureId(lectureMongo.getId()).forEach(timetable -> {
+                    final Integer[] studentsOnLectureCount = {0};
                     if((timetable.getDate().isAfter(startDate))&&(timetable.getDate().isBefore(endDate))){
                         timetable.getGroupList().forEach(group ->
                                 studentsOnLectureCount[0] += group.getStudentsList().size());

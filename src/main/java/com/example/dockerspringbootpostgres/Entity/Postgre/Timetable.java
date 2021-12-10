@@ -27,9 +27,8 @@ public class Timetable {
     @JoinColumn(name = "lecture_id")
     private Lecture lecture;
 
-    @OneToOne(targetEntity = Group.class)
-    @JoinColumn(name = "group_id")
-    private Group group;
+    @OneToMany(targetEntity = Group.class)
+    private Set<Group> groupList;
 
     @OneToMany(targetEntity = Attendance.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Attendance> attendanceList;

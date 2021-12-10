@@ -9,5 +9,6 @@ import java.util.List;
 
 public interface TimetableRepository extends JpaRepository<Timetable, String> {
     List<Timetable> findAllByLectureAndDateBetween(Lecture lecture, LocalDateTime startDate, LocalDateTime endDate);
+    List<Timetable> findAllByLectureId(Integer id);
     Timetable findById(int id);
 }

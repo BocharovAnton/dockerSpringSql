@@ -29,7 +29,7 @@ public class Group implements Serializable {
     @OneToMany(targetEntity = Student.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Student> studentsList;
 
-    @OneToMany(targetEntity = Timetable.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(targetEntity = Timetable.class)
     private Set<Timetable> timeTableList;
 
 }

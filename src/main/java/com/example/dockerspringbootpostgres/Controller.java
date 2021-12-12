@@ -23,7 +23,6 @@ import com.example.dockerspringbootpostgres.repository.Neo.TimetableNeoRepositor
 import com.example.dockerspringbootpostgres.repository.Postgre.*;
 import com.example.dockerspringbootpostgres.repository.RedisRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -96,9 +95,11 @@ public class Controller {
             newSpecialityMongo.setName(newSpeciality.getName());
             newSpecialityMongo.setId(newSpeciality.getId());
             ArrayList<Integer> courses = new ArrayList<Integer>() {{
-                add(4);
+                add(2);
+                add(2);
             }};
             Set<CourseMongo> courseMongoList = new HashSet<>();
+            Boolean flag = true;
             for (Integer course : courses) {
                 //добавляем курс
                 Course newCourse = new Course();
@@ -111,11 +112,14 @@ public class Controller {
                 newCourseMongo.setSize(newCourse.getSize());
                 newCourseMongo.setSize(newCourse.getSize());
                 courseMongoList.add(newCourseMongo);
-
-                ArrayList<String> subjects = new ArrayList<String>() {{
-                    add("Принципы построения, проектирования и эксплуатации информационных систем");
-                }};
-
+                ArrayList<String> subjects = new ArrayList<String>();
+                if(flag == true ){
+                    subjects.add("Принципы построения, проектирования и эксплуатации информационных систем");
+                    flag = false;
+                }
+                else{
+                    subjects.add("Основы антикоррупционной деятельности");
+                }
                 Set<SubjectMongo> subjectMongoList = new HashSet<>();
                 for (String subject : subjects) {
                     //добавляем предмет
@@ -131,17 +135,21 @@ public class Controller {
 
                     //добавляем лекции и их полный текст в эластик
                     Set<LectureMongo> lectureMongoList = new HashSet<>();
-                    for (int l = 0; l < dataGenerator.getLectures().size(); l++) {
+                    ArrayList<String> lectureList = new ArrayList<>();
+                    if(subject.equals("Принципы построения, проектирования и эксплуатации информационных систем"))
+                        lectureList = dataGenerator.getLecturesDocker();
+                    else
+                        lectureList = dataGenerator.getLecturesCorruption();
+                    for (int l = 0; l < lectureList.size(); l++) {
                         Lecture newLecture = new Lecture();
                         newLecture.setSubject(newSubject);
                         lectures.add(newLecture);
                         this.lectureRepository.save(newLecture);
 
-                        lectureMongoList.add(new LectureMongo(newLecture.getId(), "TEMP_NAME" + newLecture.getId()));
-
+                        lectureMongoList.add(new LectureMongo(newLecture.getId(), lectureList.get(l).split("\n")[0]));
                         LectureFullText newFullTextLecture = new LectureFullText();
                         newFullTextLecture.id = newLecture.getId();
-                        newFullTextLecture.text = dataGenerator.getLectures().get(l);
+                        newFullTextLecture.text = lectureList.get(l);
                         this.lectureFullTextRepository.save(newFullTextLecture);
                     }
                     lectureMongoRepository.saveAll(lectureMongoList);
@@ -228,23 +236,18 @@ public class Controller {
             this.lectureNeoRepository.save(newLectureNeo);
             timetableSetNeo.clear();
         }
-        int[] startDate = new int[5];
-        int[] endDate = new int[5];
-        String str;
-        Scanner in = new Scanner(System.in);
-        System.out.print("startDate: ");
-        for (int i = 0; i < 5; i++) {
-            startDate[i] = in.nextInt();
-        }
-        System.out.print("endDate: ");
-        for (int i = 0; i < 5; i++) {
-            endDate[i] = in.nextInt();
-        }
-//        УБРАТЬ ПОСЛЕ ТЕСТОВ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//        startDate = new int[]{2020, 1, 1, 0, 0};//УБРАТЬ ПОСЛЕ ТЕСТОВ!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//        endDate = new int[]{2022, 1, 1, 0, 0};//УБРАТЬ ПОСЛЕ ТЕСТОВ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//         УБРАТЬ ПОСЛЕ ТЕСТОВ!!!!!!!
-        str = "Azure IoT Hub";
+//        int[] startDate = new int[5];
+//        int[] endDate = new int[5];
+//        String str;
+//        Scanner in = new Scanner(System.in);
+//        System.out.print("startDate: ");
+//        for (int i = 0; i < 5; i++) {
+//            startDate[i] = in.nextInt();
+//        }
+//        System.out.print("endDate: ");
+//        for (int i = 0; i < 5; i++) {
+//            endDate[i] = in.nextInt();
+//        }
         lab1();
         lab2();
         return "okay";
@@ -277,33 +280,6 @@ public class Controller {
         textEntry = "Azure IoT Hub";
         Integer[] startDate = {2020,1,1,0,0};
         Integer[] endDate = {2022,1,1,0,0};
-//        List<LectureFullText> lectureFullTextList = service.elasticSearch(textEntry);
-//         for(LectureFullText lft:lectureFullTextList) {
-//             Lecture lecture = lectureRepository.findById(lft.getId());
-//             List<Timetable> timetableList = timetableRepository.findAllByLectureAndDateBetween(
-//                     lecture
-//                     , LocalDateTime.of(startDate[0], startDate[1], startDate[2], startDate[3], startDate[4])
-//                     , LocalDateTime.of(endDate[0], endDate[1], endDate[2], endDate[3], endDate[4]));
-//             for (Timetable ttl : timetableList) {
-//                 List<Attendance> attendanceList = attendanceRepository.findAllByTimetable(ttl);
-//                 for (Attendance al : attendanceList) {
-//                     if (studentsAttendance.get(al.getStudent().getId()) != null) { //проверяем есть ли запись в map
-//                         if (al.getPresence()) {//проверяем посещал ли он назначенную ему пару
-//                             studentsAttendance.put(al.getStudent().getId(), studentsAttendance.get(al.getStudent().getId()) + 1);
-//                         }
-//                         studentsLectureCount.put(al.getStudent().getId(), studentsLectureCount.get(al.getStudent().getId()) + 1);
-//                     } else {
-//                         if (al.getPresence()) {
-//                             studentsAttendance.put(al.getStudent().getId(), 1);
-//                         } else {
-//                             studentsAttendance.put(al.getStudent().getId(), 0);
-//                         }
-//                         studentsLectureCount.put(al.getStudent().getId(), 1);
-//                     }
-//                 }
-//             }
-//         }
-
         List<LectureFullText> lectureFullTextList = service.elasticSearch(textEntry);
         for(LectureFullText lft:lectureFullTextList) {
             LectureNeo lectureNeo = lectureNeoRepository.findById(lft.getId());

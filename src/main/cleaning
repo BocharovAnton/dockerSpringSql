@@ -1,0 +1,17 @@
+REDIS
+    redis-cli
+    FLUSHALL
+
+NEO4J:
+    MATCH (n) DETACH DELETE n
+
+MONGO
+    mongo bash
+    use test
+    db.lectureMongo.drop()
+    db.specialityMongo.drop()
+    db.courseMongo.drop()
+    db.subjectMongo.drop()
+
+ELASTIC
+    curl -X DELETE 'http://localhost:9200/lecture'

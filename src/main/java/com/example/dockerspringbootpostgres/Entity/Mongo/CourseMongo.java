@@ -24,7 +24,7 @@ public class CourseMongo {
     @Override
     public String toString() {
         return String.format(
-                "Course[count='%s', subject list='%s']", size, subjectList.toString());
+                "Courses [size='%s', subject list='%s']", size, subjectList.toString());
     }
 
 

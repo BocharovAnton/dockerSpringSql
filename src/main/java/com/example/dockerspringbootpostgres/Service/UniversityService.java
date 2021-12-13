@@ -2,9 +2,11 @@ package com.example.dockerspringbootpostgres.Service;
 
 import com.example.dockerspringbootpostgres.Entity.*;
 import com.example.dockerspringbootpostgres.Entity.Elastic.LectureFullText;
+import com.example.dockerspringbootpostgres.Entity.Neo.TimetableNeo;
 import com.example.dockerspringbootpostgres.Entity.Postgre.Group;
 import com.example.dockerspringbootpostgres.repository.*;
 import com.example.dockerspringbootpostgres.repository.Elastic.LectureFullTextRepository;
+import com.example.dockerspringbootpostgres.repository.Neo.TimetableNeoRepository;
 import com.example.dockerspringbootpostgres.repository.Postgre.AttendanceRepository;
 import com.example.dockerspringbootpostgres.repository.Postgre.GroupRepository;
 import com.example.dockerspringbootpostgres.repository.Postgre.LectureRepository;
@@ -17,8 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.elasticsearch.index.query.QueryBuilders.matchPhraseQuery;
@@ -37,6 +41,8 @@ public class UniversityService {
     private LectureFullTextRepository lectureFullTextRepository;
     @Autowired
     private AttendanceRepository attendanceRepository;
+    @Autowired
+    private TimetableNeoRepository timetableNeoRepository;
     @Autowired
     private RedisRepository redisRepository;
     @Transactional
@@ -60,6 +66,16 @@ public class UniversityService {
     @Transactional(readOnly = true)
     public Map<String, StudentRedis> getAllStudents() {
         return redisRepository.findAllStudents();
+    }
+    @Transactional
+    public Set<TimetableNeo> findByGroup(String code){
+        Set<TimetableNeo> timetableSet = new HashSet<>();
+        timetableNeoRepository.findAll().forEach( timetableNeo ->{
+            if(timetableNeo.getGroupList().contains(code)){
+                timetableSet.add(timetableNeo);
+            }
+        });
+        return timetableSet;
     }
 }
 

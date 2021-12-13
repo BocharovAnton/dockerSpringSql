@@ -207,6 +207,10 @@ public class Controller {
                 newTimetableNeo.setDate(newTimetable.getDate());
 
                 Set<AttendanceNeo> attendanceSetNeo = new HashSet<>();
+                Set<String> groupCodes = new HashSet<>();
+                groupSet.forEach(group -> {
+                    groupCodes.add(group.getGroupCode());
+                });
                 groupSet.forEach(group -> {
                     Set<Student> studentsOfNeededGroup = group.getStudentsList();
 
@@ -225,11 +229,13 @@ public class Controller {
                                 attendanceSetNeo.add(newAttendanceNeo);
                             }
                     );
-                    newTimetableNeo.setAttendanceList(attendanceSetNeo);
-                    this.timetableNeoRepository.save(newTimetableNeo);
-                    attendanceSetNeo.clear();
-                    timetableSetNeo.add(newTimetableNeo);
                 });
+                newTimetableNeo.setAttendanceList(attendanceSetNeo);
+                newTimetableNeo.setLecture(newLectureNeo);
+                newTimetableNeo.setGroupList(groupCodes);
+                this.timetableNeoRepository.save(newTimetableNeo);
+                attendanceSetNeo.clear();
+                timetableSetNeo.add(newTimetableNeo);
 
             }
             newLectureNeo.setTimetableList(timetableSetNeo);
@@ -276,6 +282,8 @@ public class Controller {
 
     @GetMapping(value="/lab1")
     public void lab1(){
+        studentsAttendance.clear();
+        studentsLectureCount.clear();
         String textEntry;
         textEntry = "Azure IoT Hub";
         Integer[] startDate = {2020,1,1,0,0};
@@ -383,5 +391,36 @@ public class Controller {
         });
         System.out.println("Информация о курсе:" + courseMongo.toString());
         System.out.println("Необходимое кол-во посадочных мест в аудитории:" + maxStudentsCount[0].toString());
+    }
+    @GetMapping(value="/lab3")
+    public void lab3() {
+        studentsAttendance.clear();
+        studentsLectureCount.clear();
+        String groupCode = "СИСО";
+        service.findByGroup(groupCode).forEach( timetableNeo -> {
+            timetableNeo.getAttendanceList().forEach(attendanceNeo -> {
+                if(studentsAttendance.get(attendanceNeo.getStudent()) != null) { //проверяем есть ли запись в map
+                    if (attendanceNeo.getPresence()) {//проверяем посещал ли он назначенную ему пару
+                        studentsAttendance.put(
+                                attendanceNeo.getStudent(),
+                                studentsAttendance.get(attendanceNeo.getStudent()) + 1);
+                    }
+                    studentsLectureCount.put(
+                            attendanceNeo.getStudent(),
+                            studentsLectureCount.get(attendanceNeo.getStudent()) + 1);
+                }
+                else{
+                    if (attendanceNeo.getPresence()) {
+                        studentsAttendance.put(attendanceNeo.getStudent(), 1);
+                    }
+                    else {
+                        studentsAttendance.put(attendanceNeo.getStudent(), 0);
+                    }
+                    studentsLectureCount.put(attendanceNeo.getStudent(), 1);
+                }
+            });
+        });
+        System.out.println(studentsLectureCount);
+        System.out.println(studentsAttendance);
     }
 }

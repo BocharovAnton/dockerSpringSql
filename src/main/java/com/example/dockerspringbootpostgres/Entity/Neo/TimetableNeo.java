@@ -1,5 +1,6 @@
 package com.example.dockerspringbootpostgres.Entity.Neo;
 
+import com.example.dockerspringbootpostgres.Entity.Postgre.Group;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.neo4j.core.schema.Id;
@@ -22,4 +23,9 @@ public class TimetableNeo {
 
     @Relationship(type = "_CONTAINS", direction = Relationship.Direction.OUTGOING)
     private Set<AttendanceNeo> attendanceList = new HashSet<>();
+
+    @Relationship(type = "BELONGS", direction = Relationship.Direction.OUTGOING)
+    private LectureNeo lecture;
+
+    private Set<String> groupList;
 }

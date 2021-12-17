@@ -239,6 +239,7 @@ public class Controller {
 
             }
             newLectureNeo.setTimetableList(timetableSetNeo);
+            newLectureNeo.setSpecial(true);
             this.lectureNeoRepository.save(newLectureNeo);
             timetableSetNeo.clear();
         }
@@ -373,6 +374,8 @@ public class Controller {
                 endDate = LocalDateTime.of(2022, 1, 1,0,0);;
                 break;
         }
+        System.out.println("Учебный год - " + year);
+        System.out.println("Семестр - " + semester);
         CourseMongo courseMongo = new CourseMongo();
         courseMongo = courseMongoRepository.findAll().get(0);
         courseMongo.getSubjectList().forEach(subjectMongo -> {
@@ -394,33 +397,51 @@ public class Controller {
     }
     @GetMapping(value="/lab3")
     public void lab3() {
+        System.out.println("---------");
         studentsAttendance.clear();
         studentsLectureCount.clear();
-        String groupCode = "СИСО";
+        String groupCode = "РСБО";
+        Set<CourseMongo> courseSet = new HashSet<>();
         service.findByGroup(groupCode).forEach( timetableNeo -> {
-            timetableNeo.getAttendanceList().forEach(attendanceNeo -> {
-                if(studentsAttendance.get(attendanceNeo.getStudent()) != null) { //проверяем есть ли запись в map
-                    if (attendanceNeo.getPresence()) {//проверяем посещал ли он назначенную ему пару
-                        studentsAttendance.put(
+            if(timetableNeo.getLecture().isSpecial()){
+                CourseMongo course = service.findByLecture(lectureMongoRepository.findById(timetableNeo.getLecture().getId()).get());
+                if(course !=null){
+                    courseSet.add(course);
+                }
+                timetableNeo.getAttendanceList().forEach(attendanceNeo -> {
+                    if (studentsAttendance.get(attendanceNeo.getStudent()) != null) { //проверяем есть ли запись в map
+                        if (attendanceNeo.getPresence()) {//проверяем посещал ли он назначенную ему пару
+                            studentsAttendance.put(
+                                    attendanceNeo.getStudent(),
+                                    studentsAttendance.get(attendanceNeo.getStudent()) + 2);
+                        }
+                        studentsLectureCount.put(
                                 attendanceNeo.getStudent(),
-                                studentsAttendance.get(attendanceNeo.getStudent()) + 1);
+                                studentsLectureCount.get(attendanceNeo.getStudent()) + 2);
+                    } else {
+                        if (attendanceNeo.getPresence()) {
+                            studentsAttendance.put(attendanceNeo.getStudent(), 2);
+                        } else {
+                            studentsAttendance.put(attendanceNeo.getStudent(), 0);
+                        }
+                        studentsLectureCount.put(attendanceNeo.getStudent(), 2);
                     }
-                    studentsLectureCount.put(
-                            attendanceNeo.getStudent(),
-                            studentsLectureCount.get(attendanceNeo.getStudent()) + 1);
-                }
-                else{
-                    if (attendanceNeo.getPresence()) {
-                        studentsAttendance.put(attendanceNeo.getStudent(), 1);
-                    }
-                    else {
-                        studentsAttendance.put(attendanceNeo.getStudent(), 0);
-                    }
-                    studentsLectureCount.put(attendanceNeo.getStudent(), 1);
-                }
-            });
+                });
+            }
         });
-        System.out.println(studentsLectureCount);
-        System.out.println(studentsAttendance);
+        System.out.println("Отчет по всем курсам, лекции которых посещали студенты");
+        courseSet.forEach(
+                courseMongo -> {
+                    System.out.println(courseMongo.toString());
+                }
+        );
+        System.out.println("Отчет по группе - " + groupCode);
+        for(Integer i:studentsAttendance.keySet()){
+            System.out.print(redisRepository.findStudentById(String.valueOf(i)).getFullName());
+            System.out.print("\nНомер зачетки - " + i);
+            System.out.println("\n"+"Количество посещенных часов - "+ studentsAttendance.get(i));
+            System.out.println("\n"+"Количество запланированных часов - "+ studentsLectureCount.get(i));
+            System.out.println("---------");
+        }
     }
 }

@@ -25,8 +25,4 @@ public class Course {
     @JoinColumn(name = "speciality_id")
     private Speciality speciality;
 
-
-    @OneToMany(targetEntity = Subject.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Subject> subjectList;
-
 }

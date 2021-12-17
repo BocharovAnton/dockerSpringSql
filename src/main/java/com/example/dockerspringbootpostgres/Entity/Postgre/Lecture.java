@@ -21,7 +21,6 @@ public class Lecture {
     private Subject subject;
 
 
-    @OneToMany(targetEntity = Timetable.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Timetable> timetableList;
+
 
 }

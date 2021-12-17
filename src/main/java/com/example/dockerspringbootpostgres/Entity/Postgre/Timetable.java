@@ -30,7 +30,4 @@ public class Timetable {
     @OneToMany(targetEntity = Group.class)
     private Set<Group> groupList;
 
-    @OneToMany(targetEntity = Attendance.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Attendance> attendanceList;
-
 }

@@ -22,9 +22,4 @@ public class Student implements Serializable {
     @OneToOne(targetEntity = Group.class)
     @JoinColumn(name = "group_id")
     private Group group;
-
-
-    @OneToMany(targetEntity = Attendance.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Attendance> attendanceList;
-
 }

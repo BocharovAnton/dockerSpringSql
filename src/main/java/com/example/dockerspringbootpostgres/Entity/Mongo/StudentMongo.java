@@ -20,6 +20,6 @@ public class StudentMongo {
     @Override
     public String toString() {
         return String.format(
-                "Student[code='%s', name='%s']", id, fullName);
+                "[code='%s', name='%s']", id, fullName);
     }
 }

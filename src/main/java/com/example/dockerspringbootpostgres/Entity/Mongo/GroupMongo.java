@@ -24,7 +24,7 @@ public class GroupMongo {
     @Override
     public String toString() {
         return String.format(
-                "Group[code='%s', students list='%s']", code, studentList.toString());
+                "[code='%s', students list='%s']", code, studentList.toString());
     }
 
 

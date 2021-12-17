@@ -15,7 +15,7 @@ import java.util.Set;
 public class LectureNeo {
     @Id
     Integer id;
-
+    boolean special;
     @Relationship(type = "CONTAINS", direction = Relationship.Direction.OUTGOING)
     private Set<TimetableNeo> timetableList = new HashSet<>();
 }

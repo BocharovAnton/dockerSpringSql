@@ -2,10 +2,15 @@ package com.example.dockerspringbootpostgres.Service;
 
 import com.example.dockerspringbootpostgres.Entity.*;
 import com.example.dockerspringbootpostgres.Entity.Elastic.LectureFullText;
+import com.example.dockerspringbootpostgres.Entity.Mongo.CourseMongo;
+import com.example.dockerspringbootpostgres.Entity.Mongo.LectureMongo;
+import com.example.dockerspringbootpostgres.Entity.Mongo.SubjectMongo;
 import com.example.dockerspringbootpostgres.Entity.Neo.TimetableNeo;
+import com.example.dockerspringbootpostgres.Entity.Postgre.Course;
 import com.example.dockerspringbootpostgres.Entity.Postgre.Group;
 import com.example.dockerspringbootpostgres.repository.*;
 import com.example.dockerspringbootpostgres.repository.Elastic.LectureFullTextRepository;
+import com.example.dockerspringbootpostgres.repository.Mongo.CourseMongoRepository;
 import com.example.dockerspringbootpostgres.repository.Neo.TimetableNeoRepository;
 import com.example.dockerspringbootpostgres.repository.Postgre.AttendanceRepository;
 import com.example.dockerspringbootpostgres.repository.Postgre.GroupRepository;
@@ -19,10 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.elasticsearch.index.query.QueryBuilders.matchPhraseQuery;
@@ -45,6 +47,8 @@ public class UniversityService {
     private TimetableNeoRepository timetableNeoRepository;
     @Autowired
     private RedisRepository redisRepository;
+    @Autowired
+    private CourseMongoRepository courseMongoRepository;
     @Transactional
     public List<Group> getAllGroups(){
         return groupRepository.findAll();
@@ -77,5 +81,16 @@ public class UniversityService {
         });
         return timetableSet;
     }
+    @Transactional
+    public CourseMongo findByLecture(LectureMongo arg_lecture){
+        for(CourseMongo course: courseMongoRepository.findAll()){
+            for(SubjectMongo subject: course.getSubjectList()){
+                if(subject.getLectureList().contains(arg_lecture))
+                    return course;
+            }
+        }
+        return null;
+    }
+
 }
 

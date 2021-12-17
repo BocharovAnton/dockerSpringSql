@@ -24,6 +24,6 @@ public class SpecialityMongo {
     @Override
     public String toString() {
         return String.format(
-                "Speciality[name='%s', courses:'%s']", name, courseList.toString());
+                "[name='%s', courses:'%s']", name, courseList.toString());
     }
 }

@@ -4,19 +4,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import com.example.dockerspringbootpostgres.repository.Elastic.LectureFullTextRepository;
-import com.example.dockerspringbootpostgres.Entity.*;
-import com.example.dockerspringbootpostgres.Entity.Elastic.LectureFullText;
-import com.example.dockerspringbootpostgres.Entity.Mongo.CourseMongo;
-import com.example.dockerspringbootpostgres.Entity.Mongo.LectureMongo;
-import com.example.dockerspringbootpostgres.Entity.Mongo.SpecialityMongo;
-import com.example.dockerspringbootpostgres.Entity.Mongo.SubjectMongo;
-import com.example.dockerspringbootpostgres.Entity.Neo.AttendanceNeo;
-import com.example.dockerspringbootpostgres.Entity.Neo.LectureNeo;
-import com.example.dockerspringbootpostgres.Entity.Neo.TimetableNeo;
-import com.example.dockerspringbootpostgres.Entity.Postgre.*;
 import com.example.dockerspringbootpostgres.repository.*;
-
-import com.example.dockerspringbootpostgres.Service.DataGenerator;
 import com.example.dockerspringbootpostgres.Service.UniversityService;
 import com.example.dockerspringbootpostgres.repository.Mongo.*;
 import com.example.dockerspringbootpostgres.repository.Neo.AttendanceNeoRepository;
@@ -27,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.transaction.annotation.Transactional;
 
 
 @SpringBootApplication

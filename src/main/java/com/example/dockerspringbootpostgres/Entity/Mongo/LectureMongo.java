@@ -20,6 +20,6 @@ public class LectureMongo {
     @Override
     public String toString() {
         return String.format(
-                "Lectures[name='%s']", name);
+                "[name='%s']", name);
     }
 }

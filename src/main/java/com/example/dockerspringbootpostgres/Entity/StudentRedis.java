@@ -13,8 +13,8 @@ import java.io.Serializable;
 @ToString
 public class StudentRedis implements Serializable {
 
-    private int id;
-    private String fullName;
+    Integer id;
+    String fullName;
 
 
 }

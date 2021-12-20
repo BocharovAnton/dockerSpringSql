@@ -21,11 +21,11 @@ public class TimetableNeo {
 
     LocalDateTime date;
 
-    @Relationship(type = "_CONTAINS", direction = Relationship.Direction.OUTGOING)
-    private Set<AttendanceNeo> attendanceList = new HashSet<>();
+    private Set<Integer> attendanceList;
 
     @Relationship(type = "BELONGS", direction = Relationship.Direction.OUTGOING)
     private LectureNeo lecture;
 
-    private Set<String> groupList;
+    @Relationship(type = "VISITS", direction = Relationship.Direction.OUTGOING)
+    private Set<GroupNeo> groupList;
 }

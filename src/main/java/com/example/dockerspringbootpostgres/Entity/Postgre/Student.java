@@ -16,8 +16,9 @@ import java.util.Set;
 public class Student implements Serializable {
 
     @Id
-    private int id;
-
+    int id;
+    @Column(name = "fullName", nullable = false)
+    String fullName;
     @ToString.Exclude
     @OneToOne(targetEntity = Group.class)
     @JoinColumn(name = "group_id")

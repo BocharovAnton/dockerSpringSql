@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "attendance")
@@ -19,6 +20,9 @@ public class Attendance {
 
     @Column(name = "presence", nullable = false)
     private Boolean presence;
+
+    @Column(name = "datetime", nullable = false)
+    private LocalDateTime date;
 
     @OneToOne(targetEntity = Timetable.class)
     @JoinColumn(name = "timetable_id")

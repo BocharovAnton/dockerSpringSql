@@ -16,6 +16,9 @@ public class GroupNeo {
     Integer id;
     String groupCode;
 
+    @Relationship(type = "APPOINTED", direction = Relationship.Direction.OUTGOING)
+    private Set<TimetableNeo> timetableList;
+
     @Relationship(type = "_CONTAINS", direction = Relationship.Direction.OUTGOING)
     private Set<StudentNeo> studentsList;
 

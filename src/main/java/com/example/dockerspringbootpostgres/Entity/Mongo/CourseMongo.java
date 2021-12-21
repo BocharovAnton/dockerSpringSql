@@ -15,16 +15,16 @@ import java.util.Set;
 @Document
 public class CourseMongo {
     @Id
-    private int id;
+    private int course_id;
     @Field("size")
-    private Integer size;
+    private Integer course_size;
     @Field("subject")
     Set<SubjectMongo> subjectList;
 
     @Override
     public String toString() {
         return String.format(
-                "[size='%s', subject list='%s']", size, subjectList.toString());
+                "[size='%s', subject list='%s']", course_size, subjectList.toString());
     }
 
 

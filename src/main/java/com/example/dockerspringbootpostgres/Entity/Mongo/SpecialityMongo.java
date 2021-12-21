@@ -15,15 +15,15 @@ import java.util.Set;
 @Document
 public class SpecialityMongo {
     @Id
-    private int id;
+    private int speciality_id;
     @Field("name")
-    private String name;
+    private String speciality_name;
     @Field("courselist")
     Set<CourseMongo> courseList;
 
     @Override
     public String toString() {
         return String.format(
-                "[name='%s', courses:'%s']", name, courseList.toString());
+                "[name='%s', courses:'%s']", speciality_name, courseList.toString());
     }
 }

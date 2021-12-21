@@ -5,17 +5,21 @@ import com.example.dockerspringbootpostgres.Entity.Elastic.LectureFullText;
 import com.example.dockerspringbootpostgres.Entity.Mongo.CourseMongo;
 import com.example.dockerspringbootpostgres.Entity.Mongo.LectureMongo;
 import com.example.dockerspringbootpostgres.Entity.Mongo.SubjectMongo;
+import com.example.dockerspringbootpostgres.Entity.Neo.GroupNeo;
 import com.example.dockerspringbootpostgres.Entity.Neo.TimetableNeo;
 import com.example.dockerspringbootpostgres.Entity.Postgre.Course;
 import com.example.dockerspringbootpostgres.Entity.Postgre.Group;
 import com.example.dockerspringbootpostgres.repository.*;
 import com.example.dockerspringbootpostgres.repository.Elastic.LectureFullTextRepository;
 import com.example.dockerspringbootpostgres.repository.Mongo.CourseMongoRepository;
+import com.example.dockerspringbootpostgres.repository.Mongo.SpecialityMongoRepository;
+import com.example.dockerspringbootpostgres.repository.Neo.GroupNeoRepository;
 import com.example.dockerspringbootpostgres.repository.Neo.TimetableNeoRepository;
 import com.example.dockerspringbootpostgres.repository.Postgre.AttendanceRepository;
 import com.example.dockerspringbootpostgres.repository.Postgre.GroupRepository;
 import com.example.dockerspringbootpostgres.repository.Postgre.LectureRepository;
 import com.example.dockerspringbootpostgres.repository.Postgre.TimetableRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
@@ -24,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,6 +54,10 @@ public class UniversityService {
     private RedisRepository redisRepository;
     @Autowired
     private CourseMongoRepository courseMongoRepository;
+    @Autowired
+    private GroupNeoRepository groupNeoRepository;
+    @Autowired
+    private SpecialityMongoRepository specialityMongoRepository;
     @Transactional
     public List<Group> getAllGroups(){
         return groupRepository.findAll();
@@ -72,17 +81,7 @@ public class UniversityService {
         return redisRepository.findAllStudents();
     }
     @Transactional
-    public Set<TimetableNeo> findByGroup(String code){
-        Set<TimetableNeo> timetableSet = new HashSet<>();
-        timetableNeoRepository.findAll().forEach( timetableNeo ->{
-            if(timetableNeo.getGroupList().contains(code)){
-                timetableSet.add(timetableNeo);
-            }
-        });
-        return timetableSet;
-    }
-    @Transactional
-    public CourseMongo findByLecture(LectureMongo arg_lecture){
+    public CourseMongo findByLecture(Optional<LectureMongo> arg_lecture){
         for(CourseMongo course: courseMongoRepository.findAll()){
             for(SubjectMongo subject: course.getSubjectList()){
                 if(subject.getLectureList().contains(arg_lecture))
@@ -91,6 +90,13 @@ public class UniversityService {
         }
         return null;
     }
-
+    @Transactional
+    public GroupNeo findByGroupCode(String code){
+        for (GroupNeo groupNeo : groupNeoRepository.findAll()) {
+            if(groupNeo.getGroupCode().equals(code))
+                return groupNeo;
+        }
+        return null;
+    }
 }
 

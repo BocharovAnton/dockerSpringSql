@@ -13,13 +13,13 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Document
 public class LectureMongo {
     @Id
-    private int id;
+    private int lecture_id;
     @Field("name")
-    private String name;
+    private String lecture_name;
 
     @Override
     public String toString() {
         return String.format(
-                "[name='%s']", name);
+                "[name='%s']", lecture_name);
     }
 }
